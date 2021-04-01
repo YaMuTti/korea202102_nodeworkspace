@@ -1,0 +1,8 @@
+create  table member(
+  member_id int primary key auto_increment
+, user_id varchar(20)
+, user_pass varchar(20)
+, user_name varchar(30)
+ , regdate timestamp default now()
+) default character set utf8;
+

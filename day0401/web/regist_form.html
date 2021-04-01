@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 파비콘..이런게있다정도로 알아둔다, 퍼블리셔들이 쓰고 자동으로 해주는게있다 -->
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+input[type=button] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=button]:hover {
+  background-color: #45a049;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+//Jquery의 문법 형식 (누구를).어떻게, 누구를 자리에 올수있는 요소?
+//CSS의 selector가 올수 있다..
+$(function(){ //onLoad되면...
+    $("input[type=button]").click(function(){
+        //유효성체크
+        if($("#user_id").val()==""){
+            alert("아이디를 입력하세요");
+            return;//실행부가 이 함수를 호출한 곳으로 되돌아감
+        }
+        //if 조건을 만나지 않은사람은 올바르게 입력한 사람이므로, 서버에 데이터를 전송
+        $("form").attr("action", "http://localhost:7777/param");
+        $("form").attr("method", "post"); //전송방식을 post로 지정
+        $("form").submit(); //폼양식에 입력한 데이터를 서버로 전송~~~~
+    });
+});
+</script>
+</head>
+<body>
+
+<h3>Contact Form</h3>
+
+<div class="container">
+    <!-- 폼태그의 속성 중 action은 이 폼양식을 전송할 대상 서버의 url을 명시할 수 있다 -->
+  <form action="http://daum.net">
+    <label for="user_id">ID</label>
+    <input type="text" id="user_id" name="firstname" placeholder="Your ID..">
+
+    <label for="user_pass">Password</label>
+    <input type="password" id="user_pass" name="lastname" placeholder="Your Password..">
+
+    <label for="user_name">Name</label>
+    <input type="text" id="user_name" name="name" placeholder="Your Name..">
+
+    <!-- input 태그의 type중 submit은 디폴트로 전송기능이 포함되어 있기 때문에
+    클릭만으로도, 전송이 발생함, 따라서 일반 버튼화시켜놓자 -->
+    <input type="button" value="Submit">
+  </form>
+</div>
+
+</body>
+</html>

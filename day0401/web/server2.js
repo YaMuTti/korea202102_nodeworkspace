@@ -8,7 +8,7 @@ var querystring=require("querystring"); //파라미터 처리 모듈
 var server = http.createServer(function(request, response){
     if(request.url=="/param"){
         //클라이언트가 전송한 파라미터 받기
-
+        
         //get방식으로 전송된 데이터 받아보기
         querystring.parse();
         console.log("클라이언트의 요청 발견", querystring);

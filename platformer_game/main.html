@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플랫포머 게임</title>
+<style>
+*{margin: 0px;}
+#wrapper{
+    width: 1280px;
+    height: 960px;
+    background-image: url(./images/sandbg.png);
+    margin: auto;
+    position: relative;
+    overflow: hidden;
+}
+</style>
+<script src="./js/GameObject.js"></script>
+<script src="./js/Block.js"></script>
+<script src="./js/Hero.js"></script>
+<script src="./js/lib.js"></script>
+<script>
+var hero;
+var blockArray=[]; //벽돌을 담아놓을 배열
+
+function init(){
+    createBlock();
+    createHero();
+    //키보드 이벤트 구현
+    window.addEventListener("keydown", function(e){ //event 객체가 익명함수의 매개
+                                                                            //변수로 전달됨
+        switch(e.keyCode){
+            case 32:jump();break;
+            case 37:hero.velX=-3;break;
+            case 39:hero.velX=3;break;
+        }
+    });
+    window.addEventListener("keyup", function(e){ 
+        switch(e.keyCode){
+            case 37:hero.velX=0;break;
+            case 39:hero.velX=0;break;
+        }
+    });
+}    
+
+function createBlock(){ //블럭생성
+    //constructor(container, src, width, height, x, y)
+    for(var i=0;i<10;i++){
+        var block = new Block(document.getElementById("wrapper"), "./images/StoneBlock.png", 70, 70, 50+(70*i), 600, 0, 0);
+        blockArray.push(block); //배열에 추가
+    }
+}
+//주인공 생성
+function createHero(){
+    hero = new Hero(document.getElementById("wrapper"), "./images/ninja.png", 45, 85, 100, 50, 0, 1);
+}
+
+//점프처리
+function jump(){
+    //점프를 하지 않고 있는 상황이라면...
+    if(hero.jump==false && hero.velY==0){ //지구상의 모든 물체는 바닥을 밟아야 점프가 가능하다!!
+        hero.velY=-10; //순간적으로 음수로 전환(하지만 곧 g때문에 양수로 전환됨..)
+        hero.jump=true; //주인공이, 블럭위에 묶여 있지 않도록 처리!!
+    }
+}
+
+function gameLoop(){ //게임의 심장(FPS를 결정함)
+    //주인공의 tick, render
+    hero.tick();
+    hero.render();
+}
+
+window.addEventListener("load", function(){
+    init();
+    setInterval("gameLoop()", 10);
+});
+</script>
+</head>
+<body>
+    <div id="wrapper"></div>
+</body>
+</html>

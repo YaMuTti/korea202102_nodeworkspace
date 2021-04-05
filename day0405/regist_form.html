@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">    
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 파비콘..이런게있다정도로 알아둔다, 퍼블리셔들이 쓰고 자동으로 해주는게있다 -->
 <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
 <style>
 body {font-family: Arial, Helvetica, sans-serif;}
@@ -40,23 +41,21 @@ input[type=button]:hover {
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
-/*Jquery의 문법 형식  (누구를).어떻게 , 누구를 자리에 올수있는 요소?
-CSS의 selector가 올수 있다..
-*/    
-$(function(){ //onLoad되면....
-    $("input[type=button]").click(function(){ 
-        //유효성 체크 
+//Jquery의 문법 형식 (누구를).어떻게, 누구를 자리에 올수있는 요소?
+//CSS의 selector가 올수 있다..
+$(function(){ //onLoad되면...
+    $("input[type=button]").click(function(){
+        //유효성체크
         if($("#user_id").val()==""){
             alert("아이디를 입력하세요");
             return;//실행부가 이 함수를 호출한 곳으로 되돌아감
-        }             
+        }
         //if 조건을 만나지 않은사람은 올바르게 입력한 사람이므로, 서버에 데이터를 전송
-        $("form").attr("action", "/member/join");//이 요청을 받을 서버의 주소
+        $("form").attr("action", "http://localhost:7777/param");
         $("form").attr("method", "post"); //전송방식을 post로 지정
         $("form").submit(); //폼양식에 입력한 데이터를 서버로 전송~~~~
     });
 });
-
 </script>
 </head>
 <body>
@@ -65,27 +64,19 @@ $(function(){ //onLoad되면....
 
 <div class="container">
     <!-- 폼태그의 속성 중 action은 이 폼양식을 전송할 대상 서버의 url을 명시할 수 있다 -->
-    <!-- 
-      id 와 name 공통점과 차이점 
-      공통점)  문서내의 요소를 식별하기 위함 
-      차이점)  id-유일해야 함, name-중복허용(배열로 인식)
-                  name은 폼 전송시 전송 파라미터역할을 한다 , 즉 변수 역할을 한다!!!
-                  이때 전송 파라미터로서의 name의 이름은 주로  db의 테이블의 컬럼명과 일치시키는 규칙..
-     -->
-  <form>
+  <form action="http://daum.net">
     <label for="user_id">ID</label>
-    <input type="text" id="user_id" name="user_id" placeholder="Your ID..">
+    <input type="text" id="user_id" name="firstname" placeholder="Your ID..">
 
     <label for="user_pass">Password</label>
-    <input type="password" id="user_pass" name="user_pass" placeholder="Your Password..">
+    <input type="password" id="user_pass" name="lastname" placeholder="Your Password..">
 
     <label for="user_name">Name</label>
-    <input type="text" id="user_name" name="user_name" placeholder="Your Name..">
+    <input type="text" id="user_name" name="name" placeholder="Your Name..">
 
-    <!-- input 태그의 type중 submit은 디폴트로 전송기능이 포함되어 있기 때문에 
-    클릭만으로도, 전송이 발생함 , 따라서 일반 버튼화시켜놓자 -->
+    <!-- input 태그의 type중 submit은 디폴트로 전송기능이 포함되어 있기 때문에
+    클릭만으로도, 전송이 발생함, 따라서 일반 버튼화시켜놓자 -->
     <input type="button" value="Submit">
-
   </form>
 </div>
 

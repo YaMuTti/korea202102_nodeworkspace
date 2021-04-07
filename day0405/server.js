@@ -3,6 +3,7 @@ var fs = require("fs");//파일 시스템 모듈
 
 //(쪼개져서)직렬화된 전송한 데이터에 대한 해석을 담당(문자열로 해석가능함)
 var qs=require("querystring"); 
+var url=require("url"); //url분석과 관련된 내부모듈
 var mysql=require("mysql"); //mysql 모듈 가져오기 (외부모듈이므로 별도 설치 필요)
 var ejs = require("ejs"); //ejs 모듈을 가져오기 (외부모듈)
 
@@ -28,15 +29,32 @@ var server = http.createServer(function(request, response){
     회원 정보 수정 요청: /member/edit 
     회원 정보 삭제 요청 : /member/del
     */
-    switch(request.url){
+
+    //혹여나, 파라미터가 get방식으로 전송되어 올 경우엔 request.url의 파라미터까지도 주소로
+    //간주될 수 있기 때문에 파라미터를 제거하자!
+    console.log("url파싱 결과는 ", url.parse(request.url));
+    var requestUrl=url.parse(request.url).pathname; //파라미터를 제외한 주소
+    switch(requestUrl){
         case "/member/form": registForm(request, response);break;
         case "/member/join": regist(request, response);break;
         case "/member/list": getList2(request, response);break; //getList2()로 바뀜!!!
         case "/member/detail": getDetail(request, response);break;
         case "/member/edit": edit(request, response);break;
         case "/member/del": del(request, response);break;
+
+        //이미지 처리 서버 200개의 갤러리
+        case "/photo/img1" : getImage(request, response);break;
     }    
 }); //서버 객체 생성 
+//이미지, css, js, html, 기타 서버에서 실행되지 않는 자원들을 가리켜 정적자원(static)
+//1:1로 대응되는 요청을 처리한다면,, 개발에 효율성 없음..
+//결론 : 정적 자원 처리 뿐만 아니라, 개발의 편의성을 위해 좀더 개선된 서버 모듈로 전환!!!
+function getImage(request, response){
+    fs.readFile("./images/right_pica.png", function(err, data){
+        response.writeHead(200, {"Content-Type":"image/png"});
+        response.end(data);
+    })
+}
 
 
 function registForm(request, response){
@@ -164,12 +182,117 @@ function getList(request, response){
 }
 
 function getDetail(request, response){
+    //한사람에 대한 정보 가져오기!!
+    //mysql에 접속을 먼저해야 한다!!
+    var con = mysql.createConnection(conStr);//접속 후 접속객제 반환
+    
+    //아래의 쿼리문에서 사용되는 pk값은, 클라이언트가 전송한 값으로 대체해버리자!!
+    //get방식은, body를 통해 넘겨지는 post방식에 비해 header를 타고 전송되어 오므로,
+    //추출하기가 용이하다!!(마치 봉투의 겉면에 씌여진 글씨와 같다)
+    //개발자가 직접 url을 문자열 분석을 시도하기 보다는 보다 url을 전문적으로 해석 및 분석할 수 있는 
+    //모듈에게 맡기면 된다!! 그 역할을 수행하는 모듈이 바로 url 매부모듈이다!!
+    //querystring : post 방식의 파라미터 추출,
+    //url : get 방식의 파라미터 추출
+    var param=url.parse(request.url, true).query; //true을 매개변수로 넘기면, json형태로 파라미터를 반환해줌
+
+    console.log("상세보기에 필요한 추출 파라미터는 ", param);
+
+    var member_id=param.member_id; //json으로부터 파라미터 변수 추출
+    console.log("클라이언트가 전송한 member_id의 파라미터값은 ", member_id);
+    var sql = "select * from member where member_id="+member_id;
+
+    //response.end("detail test");
+
+    
+    //쿼리문 수행
+    con.query(sql, function(err, result, fields){
+        console.log(result);
+        //쿼리문이 수행 완료된 시점이므로, 이때 사용자에게 상세페이지를 보여준다!!
+        fs.readFile("./detail.ejs", "utf8", function(err, data){
+            if(err){
+                console.log(err);
+            }else{
+                //클라이언트에게 html을 읽어들인 내용을 보내주자!
+                response.writeHead(200, {"Content-Type":"text/html;charset=utf-8"});
+                //render의 대상은 ejs 파일내의 %%퍼센트 영역만이다!!
+                //따라서, 모든 render작업이 끝나면 html로 재구성하여 응답정보에 실어서
+                //클라이언트에게 응답을 실행한다!!
+                response.end(ejs.render(data, {
+                    //한건이라 할지라도 , select 문의 결과는 배열이다. 따라서 0번째를 추출 
+                    record:result[0]
+                }));
+            }
+            con.end();//mysql 접속 끊기!!
+        });
+    });
+    
+
 }
 
 function edit(request, response){
+    //쿼리문에 사용될 4개의 파라미터값을 받아서 변수에 담아보자!!
+    //글 수정은 클라이언트로부터 post 방식으로 서버에 전송되기 때문에, 그 데이터가 body에 들어있다.
+    //body에 들어있는 파라미터를 추출하기 위한 모듈이 querystring 이다!!
+
+    //post방식의 데이터는 버퍼에 담겨오기 때문에, 이 따로 따로 직렬화되어 분산된 데이터를
+    //일단 문자열로 모아서 처리해야 한다
+    var content="";
+    request.on("data", function(data){
+        content+=data; //쪼개진 데이터 모으기!!
+    });
+
+    request.on("end", function(){
+        //이 시점이 파라미터가 하나의 문자열로 복원된 시점이다!!
+        var obj=qs.parse(content);
+        console.log("파싱한 결과는 ",obj);
+
+        var sql="update member set user_id='"+obj.user_id+"', user_pass='";
+        sql+=obj.user_pass+"', user_name='"+obj.user_name+"'";
+        sql+="' where member_id="+obj.member_id;
+
+        //쿼리문 실행하여 수정을 완료하세요
+        //수정 완료 메시지 alert()으로 띄우고, 상세보기 페이지를 다시 보여주기!!
+        //단, 상세보기로 이동시 에러가 나면 안된다!!!!! 수정된 내용이 반영되어 있어야 함
+        var con=mysql.createConnection(conStr); //접속
+        /*
+        DML(insert, update, delete) : 매개변수가 2개
+        select : 매개변수 3개
+        */
+        con.query(sql, function(err, fields){
+            if(err){
+                console.log(err);
+            }else{
+                response.writeHead(200, {"Content-type":"text/html;charset=utf-8"});
+                response.end("<scritp>alert('수정되었습니다');location.href='/member/detail?member_id="+obj.member_id+"';</scritp>");
+            }
+            con.end(); //mysql과의 접속 끊기
+        });
+    });
 }
 
 function del(request, response){
+    //querystring(Post) 파라미터 추출 VS url(GET) 파라미터 추출
+    var param = url.parse(request.url, true).query;
+    console.log("클라이언트가 전송한 파라미터는 ",param);
+
+    var sql="delete from member where member_id="+param.member_id;
+
+    //쿼리문 구성이 끝났으므로, mysql에 접속하여 해당 쿼리를 실행하자!!
+    var con=mysql.createConnection(conStr); //접속!! 및 커넥션 객체 반환
+    //커넥션 객체는 접속 정보를 가진 객체이며, 이 객체를 통해 쿼리를 수행할 수 있다..
+    //또한 mysql, 접속을 해제도 가능하다
+    //select문의 경우엔 결과를 가져와야 하기때문에 가운데 인수, result인수가 필요하지만
+    //delete, update, insert DML은 가져올 레코드가 없기 때문에 인수가 2개이면 충분함.
+    con.query(sql, function(err, fields){
+        if(err){
+            console.log(err);
+        }else{
+            response.writeHead(200, {"Content-type":"text/html;charset=utf-8"});
+            response.end("<script>alert('삭제완료');location.href='/member/list';</script>");
+        }
+        con.end();//mysql 접속 끊기
+    });
+
 }
 
 server.listen(7979, function(){

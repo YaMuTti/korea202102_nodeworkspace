@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+</style>
+</head>
+<body>
+
+<h2>게시물 수는, <%=noticeList.length%></h2>
+
+<table>
+  <tr>
+    <th>No</th>
+    <th>제목</th>
+    <th>작성자</th>
+    <th>작성일</th>
+    <th>조회수</th>
+  </tr>
+  <%var totalRecord = noticeList.length; //총 게시물 수를 담자%>
+  <%for(var i=0;i<noticeList.length;i++){%>
+  <%var notice = noticeList[i]; //배열에서 json 하나 꺼내기%>
+  <tr>
+    <td><%=(totalRecord--)%></td>
+    <td>
+      <a href="/notice/detail?notice_id=<%=notice.notice_id%>"><%=notice.title%></a>
+    </td>
+    <td><%=notice.writer%></td>
+    <%var d = new Date(notice.regdate);%>
+    <td>
+      
+      <%=d.getFullYear()%>-<%=lib.getZeroString(d.getMonth()+1)%>-<%=lib.getZeroString(d.getDate())%>
+    </td>
+    <td><%=notice.hit%></td>
+  </tr>
+  <%}%>
+  <tr>
+    <td colspan="5">
+      <button onClick="location.href='/notice/regist_form.html'">글등록</button>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

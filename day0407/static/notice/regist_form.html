@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 파비콘..이런게있다정도로 알아둔다, 퍼블리셔들이 쓰고 자동으로 해주는게있다 -->
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+input[type=text], textarea{
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+textarea{
+  height: 100px;
+}
+
+input[type=button] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=button]:hover {
+  background-color: #45a049;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script>
+//Jquery의 문법 형식 (누구를).어떻게, 누구를 자리에 올수있는 요소?
+//CSS의 selector가 올수 있다..
+$(function(){ //onLoad되면....
+
+  //편집기 입히기!!
+  CKEDITOR.replace("content");
+
+  $($("input[type='button']")[0]).click(function(){ //등록버튼
+    regist();
+  });
+  $($("input[type='button']")[1]).click(function(){ //목록버튼
+    getList();
+  });
+
+  function regist(){
+    $("form").attr("action","/notice/regist"); //url은 개발자가 정한다, 단 서버랑 짝을 맞추자!!
+    $("form").attr("method","post");
+    $("form").submit();//전송해위가 발생!!
+  }
+  function getList(){
+
+  }
+});
+</script>
+</head>
+<body>
+
+<h3>Contact Form</h3>
+  <form>
+    <input type="text" name="title" placeholder="Your title..">
+    <input type="text" name="writer" placeholder="Your name..">
+    <textarea name="content" placeholder="something content"></textarea>
+
+    <!-- input 태그의 type중 submit은 디폴트로 전송기능이 포함되어 있기 때문에
+    클릭만으로도, 전송이 발생함, 따라서 일반 버튼화시켜놓자 -->
+    <input type="button" value="Submit">
+    <input type="button" value="목록">
+  </form>
+</div>
+
+</body>
+</html>

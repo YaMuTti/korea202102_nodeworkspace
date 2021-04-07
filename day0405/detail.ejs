@@ -43,40 +43,50 @@ input[type=button]:hover {
 <script>
 //Jquery의 문법 형식 (누구를).어떻게, 누구를 자리에 올수있는 요소?
 //CSS의 selector가 올수 있다..
-$(function(){ //onLoad되면....
-    $("input[type=button]")[0].click(function(){ 
-        //유효성 체크 
-        if($("#user_id").val()==""){
-            alert("아이디를 입력하세요");
-            return;//실행부가 이 함수를 호출한 곳으로 되돌아감
-        }             
-        //if 조건을 만나지 않은사람은 올바르게 입력한 사람이므로, 서버에 데이터를 전송
-        $("form").attr("action", "/member/join");//이 요청을 받을 서버의 주소
+$(function(){ //onLoad되면...
+  //수정  
+  $($("input[type=button]")[0]).click(function(){ 
+      if(confirm("작성하신 내용으로 수정할까요?")){
+        $("form").attr("action", "/member/edit");//이 요청을 받을 서버의 주소
         $("form").attr("method", "post"); //전송방식을 post로 지정
         $("form").submit(); //폼양식에 입력한 데이터를 서버로 전송~~~~
+      }
     });
-    //두번째 버튼을 누르면, 목록 요청
+    
+    //삭제요청
     $($("input[type=button]")[1]).click(function(){
+      if(confirm("삭제하시겠습니까?")){
+        location.href="/member/del?member_id=<%=record.member_id%>";
+      }
+    });
+
+    //목록보기
+    $($("input[type=button]")[2]).click(function(){
       location.href="/member/list"; //get한 방식의 요청
-    })
+    });
 });
 </script>
 </head>
+
 <body>
 
-<h3>Contact Form</h3>
+<h3>회원정보 상세보기</h3>
 
 <div class="container">
     <!-- 폼태그의 속성 중 action은 이 폼양식을 전송할 대상 서버의 url을 명시할 수 있다 -->
-  <form action="http://daum.net">
+  <%="ejs파일로 넘겨받은 레코드는 "+record %>
+  <form>
     <label for="user_id">ID</label>
-    <input type="text" id="user_id" name="user_id" placeholder="Your ID..">
+    <input type="text" id="user_id" name="user_id" value="<%=record.user_id%>">
 
     <label for="user_pass">Password</label>
-    <input type="password" id="user_pass" name="user_pass" placeholder="Your Password..">
+    <input type="password" id="user_pass" name="user_pass" value="<%=record.user_pass%>">
 
     <label for="user_name">Name</label>
-    <input type="text" id="user_name" name="user_name" placeholder="Your Name..">
+    <input type="text" id="user_name" name="user_name" value="<%=record.user_name%>">
+    
+    <!-- 이 텍스트 필드는, member_id값을 넘기기 위한 용도이다. -->
+    <input type="text" name="member_id" value="<%=record.member_id%>">
 
     <!-- input 태그의 type중 submit은 디폴트로 전송기능이 포함되어 있기 때문에
     클릭만으로도, 전송이 발생함, 따라서 일반 버튼화시켜놓자 -->

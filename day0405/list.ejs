@@ -20,6 +20,15 @@ tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 </style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+//버튼을 클릭하면, /member/list 페이지 요청!!
+$(function(){
+  $("button").on("click", function(){
+    location.href="/member/form"; //get방식
+  });
+});
+</script>
 </head>
 <body>
 
@@ -43,13 +52,18 @@ tr:nth-child(even) {
   <%var obj=members[i]; //배열에서 i번째 요소를 끄집어서 회원1명을 반환하자!!%>
     <tr>
       <td><%=obj.member_id%></td>
-      <td><%=obj.user_id%></td>
+      <td>
+        <a href="/member/detail?member_id=<%=obj.member_id%>"><%=obj.user_id%></a>
+      </td>
       <td><%=obj.user_pass%></td>
       <td><%=obj.user_neme%></td>
       <td><%=obj.regdate%></td>
     </tr>
   <%} %>
-
+    <tr>
+      <td colspan="5">
+        <button>가입</button>
+    </tr>
 </table>
 
 </body>

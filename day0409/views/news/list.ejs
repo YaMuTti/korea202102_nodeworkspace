@@ -1,0 +1,121 @@
+<%
+/*  페이징 처리를 위한 변수 선언 및 연산
+    변수화 시켜놓으면 유지보수 하기가 용이하다
+    변수간의 순서는 매우 중요하다...
+*/
+var totalRecord=param.record.length; //총 레코드 수 
+var pageSize=10; //페이지당 보여질 레코드 수
+var totalPage=Math.ceil(totalRecord/pageSize); //공식
+var blockSize=10; //블럭당 보여질 페이지 수
+var currentPage = param.page;//현재 페이지
+//firstPage와 lastPage의 공식을 구하는기 위한 힌트!!!!!
+//공식은 모두 이전의 변수들을 조합할 수 잇다..
+var firstPage = currentPage-(currentPage-1)%blockSize; //블럭당 for문의 시작 페이지
+var lastPage = firstPage+(blockSize-1); //블럭당 for문의 마지막 페이지
+curPos=(currentPage-1)*pageSize; //페이지당 데이터 배열의 시작 인덱스
+var num=totalRecord-curPos; //페이지당 시작 게시물 번호
+
+%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+}
+th, td {
+  text-align: left;
+  padding: 16px;
+}
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+a{
+    text-decoration: none; /* 밑줄 제거 */
+}
+/*페이지 번호의 스타일*/
+.pageNum{
+    font-size:20px;
+    font-weight:bold;
+    color:blue;
+}
+</style>
+</head>
+<body>
+
+<h2>뉴스 기사 메인</h2>
+<!--  ejs의 표현식 중  = 은 출력의 단축표현식이다, 주의 세미콜론으로 문장의 마무리를 하지 않는다. -->
+<%="totalRecord(총 레코드) 는  "+totalRecord%><br>
+<%="pageSize(페이지당 보여질 레코드 수) 는  "+pageSize%><br>
+<%="totalPage(총 페이지 수) 는  "+totalPage%><br>
+<%="blockSize(블럭당 보여질 페이지 수) 는  "+blockSize%><br>
+<%="currentPage(현재 페이지 ) 는  "+currentPage%><br>
+<table>
+    <tr>
+        <th>No</th>
+        <th>뉴스 제목</th>
+        <th>기자명</th>
+        <th>등록일</th>
+        <th>조회수</th>
+    </tr>
+    <%for(var i=1;i<=pageSize;i++){%>
+    <%if(num<1) break; //게시물 번호가 1보다 작아지면 멈추기%>
+    <%var news=param.record[curPos++]//배열에서 게시물 한건 꺼내기%>
+    <tr>
+        <td><%=(num--)%></td>
+        <td>
+          <a href="/news/detail?news_id=<%=news[0]%>"><%=news[1]%></a>
+        </td>
+        <td><%=news[2]%></td>
+        <%var d=new Date(news[4]); //날짜처리%>
+        <td>
+          <%=d.getFullYear()%>-
+          <%=param.lib.getZeroString(d.getMonth()+1)%>-
+          <%=param.lib.getZeroString(d.getDate())%>
+        </td>
+        <td><%=news[5]%></td>
+    </tr>
+    <%}%>
+    <tr>
+        <td colspan="5" style="text-align:center">
+
+          <%if(firstPage-1 < 1){%>            
+            <a href="javascript:alert('이전 페이지가 없습니다.');">◀</a> 
+        <%}else{%>
+            <a href="/comments/list?currentPage=<%=firstPage-1%>">◀</a> 
+        <%}%>   
+        <%for(var i=firstPage;i<=lastPage;i++){%>
+
+          <%if(i>totalPage)break; //총 페이지수를 넘어서면 반복문 멈추기%>
+            <!-- pageNum  클래스는 현재 유저가 보고 있는 페이지의 경우만 a태그에 적용.. -->
+            <a href="/comments/list?currentPage=<%=i%>" <%if(i==currentPage){%>class="pageNum"<%}%> >[ <%=i%> ]</a>
+        <%}%>
+
+        <%if(lastPage+1 > totalPage){//lastPage+1 한 결과가 보유한 총 페이지를 넘어서면 욕%>
+        <a href="javascript:alert('다음페이지가 없습니다');">▶</a>
+        <%}else{%>
+        <a href="/comments/list?currentPage=<%=lastPage+1%>">▶</a>
+        <%}%>
+
+        </td>
+    </tr>
+    <tr>
+      <td colspan="5">
+        <button onclick="location.href='/html/regist_form.html'">글 등록</button>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="5">
+        <input type="text" placeholder="댓글내용">
+        <input type="text" placeholder="작성자">
+        <input type="text" value="댓글등록">
+      </td>
+    </tr>
+</table>
+
+</body>
+</html>

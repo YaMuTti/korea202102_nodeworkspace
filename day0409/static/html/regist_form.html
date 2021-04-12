@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 파비콘.. 윈도우 상 아이콘이다. -->
+<link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+* {box-sizing: border-box;}
+
+input[type=text],textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+textarea{
+  height: 200px;
+}
+
+input[type=button] {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+input[type=submit]:hover {
+  background-color: #45a049;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script>
+/*JQuery 의 문법 형시 (누구를).어떻게, 누구자리에 올수있는 요소?
+CSS의 selector가 올수 있다.*/
+$(function(){ //onLoad되면
+  //편집기 입히기
+  CKEDITOR.replace("content");
+
+  $($("input[type='button']")[0]).click(function(){//등록버튼
+    regist();
+  });
+
+  $($("input[type='button']")[1]).click(function(){//목록버튼
+    getList();
+  });
+
+});
+
+function regist(){
+  $("form").attr("action", "/news/regist"); //url은 개발자가 정한다, 단 서버랑 짝을 맞추자
+  $("form").attr("method", "post");
+  $("form").submit(); //전송행위가 발생
+
+}
+
+function getList(){
+  location.href="/comments/list";
+}
+</script>
+</head>
+<body>
+
+<h3>Contact Form</h3>
+
+<div class="container">
+    <!-- 폼 태그의 속성중 action은 이 폼양식을 전송할 대상 서버의 url을 명시할 수 있다. -->
+    <!-- 
+      id와 name 공통점과 차이점
+      공통점)문서내의 요소를 식별하기 위함
+      차이점)id-유일해야함, name-중복허용(배열로 인식)
+                name은 폼 전송시 전송 파라미터 역할을 한다, 즉 변수 역할을 한다
+                이때 전송 파라미터로서의 name의 이름은 주로 db의 테이블의 컬럼명과 일치시키는 규칙
+     -->
+  <form>
+    <input type="text" name="title" placeholder="Your title..">
+    <input type="text" name="writer" placeholder="Your name..">
+    <textarea name="content" placeholder="content.."></textarea>
+
+    <!-- input 태그의 type 중 submit은 디폴트로 전송기능이 포함되어 있기 때문에
+    클릭만으로도, 전송이 발생함. 따라서 일반 버튼화 시켜놓자 -->
+    <input type="button" value="등록">
+    <input type="button" value="목록">
+  </form>
+</div>
+
+</body>
+</html>

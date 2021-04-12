@@ -1,0 +1,26 @@
+create table news(
+    news_id number primary key
+    , title varchar(100)
+    , writer varchar(20)
+    , content clob
+    , regdate date default sysdate
+    , hit number default 0
+)
+
+
+create  table  comments(
+   comments_id  number  primary key 
+  , news_id  number
+  , msg  varchar(100)
+  , author  varchar(20)
+  , writeday  date  default sysdate 
+  , constraint  fk_newscomments  foreign key (news_id) references news(news_id)
+)
+
+create sequence seq_news
+increment by 1
+start with 1;
+
+create sequence seq_comments
+increment by 1
+start with 1;

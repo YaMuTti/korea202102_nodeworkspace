@@ -43,36 +43,108 @@ input[type=button]:hover {
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<script src="/js/Comments.js"></script>
 <script>
 $(function(){ //onLoad되면....
   CKEDITOR.replace("content");
   $($("input[type='button']")[0]).click(function(){ //등록버튼
-    regist();
+    edit();
   });
   $($("input[type='button']")[1]).click(function(){ //목록버튼
     getList();
   });
+  
 });
-function regist(){
-  $("form").attr("action","/news/regist");  //url 은 개발자가 정한다, 단 서버랑 짝을 맞추자!!
+function edit(){
+  $("form").attr("action","/news/edit");  //url 은 개발자가 정한다, 단 서버랑 짝을 맞추자!!
   $("form").attr("method","post");  
   $("form").submit();//전송행위가 발생!!!
 }
 function getList(){
+  location.href="/news/list";
 }
 //댓글 등록 요청
 function addComment(){
+  /*
   $("#comment-form").attr({
-    method:"post",
+    method:"post", 
     action:"/comments/regist"
   });
   $("#comment-form").submit(); //전송
+  */
+  //화면의 일부만 변경하기 위해(부분변경)서, 백그라운드에서 요청을 시도해 본다 
+  var xhttp = new XMLHttpRequest();//비동기 객체 생성 
+  //이벤트 처리 
+  xhttp.onreadystatechange=function(){
+    if(this.readyState==4 && this.status==200){
+      //서버에서 성공된 응답데이터가 온 시점이다!!
+      //alert("서버로부터 받은 결과는 "+this.responseText);
+
+      //responseText를 분석하여, 성공, 실패 여부에 따라 알맞는 메시지출력
+      var json = JSON.parse(this.responseText); //쌍따옴표 걷어내고, json객체 반환
+
+      //alert("분석결과는 "+json.result);
+      if(json.result==0){
+        alert("댓글 등록실패");
+      }else{
+        //성공한 경우에 할 일???
+        //댓글을 불러오기!!!(서버로 부터 ==요청==2가지 get, post, 비동기?)
+        alert("댓글 등록 성공");
+        //location.reload(); //페이지 새로고침 <등록시 깜빡거림>
+        //location.href="/news/detail?news_id=<%=news[0]%>"; <등록시 깜빡거림>
+        //비동기로 요청하자!! 따라서, 디자인을 제외한 데이터만 서버로부터 가져오자!!
+        getCommentsList(); //동기가 아닌 비동기로 호출하는 함수를 이용하자!!
+      }
+    }     
+  }
+  xhttp.open("POST", "/comments/regist", true);
+  xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+  var msg=$("input[name='msg']").val();//댓글 내용
+  var author=$("input[name='author']").val();//댓글 작성자
+  xhttp.send("news_id=<%=news[0]%>&msg="+msg+"&author="+author);
+}
+//댓글 목록을 비동기로 가져오기!!(처음에 게시판 들어올때도 호출+코멘트 등록시에도 호출)
+function getCommentsList(){
+  //location.href="/comments/list?news_id=<%=news[0]%>"
+  
+  //서버는 더이상 디자인 코드를 보내주지 않는다!! 따라서 비동기방식으로 데이터만 가져오자
+  var xhttp=new XMLHttpRequest();
+  //메인실행부는 아래의 이벤트 함수를 통해, 비동기방식의 요청이 완료된 시점을 알수있다
+  xhttp.onreadystatechange=function(){
+    //서버가 무사히 처리를했고, 응답이 왔다면... 두가지 조건을 만족하는 코드 작성
+    if(this.readyState==4 && this.status==200){
+      //alert("서버로부터 받은 데이터는 "+this.responseText);
+      //서버가 json문자열로 전송했기 때문에, 다시 json으로 복원을 하여 사용해보자!!
+      var json = JSON.parse(this.responseText); //문자열을 to json으로...
+      //alert("코멘트 게시물 수는 "+json.rows.length); //2차원배열의 길이~!!!
+
+      //서버로부터 받은 데이터를 화면에 갱신시켜 보자, 이때 개발자는 DOM지식이 있어야
+      //html을 동적으로 변경시킨다..
+      printCommentsList(json.rows);
+    }
+  }
+  xhttp.open("GET", "/comments/list?news_id=<%=news[0]%>", true);
+  xhttp.send();
+}
+
+//댓글 출력!!!
+function printCommentsList(arr){
+  //출력전에, 기존에 등록된 댓글을 싹!~~ 지우자, 그후 다시 반복문 돌리자!!
+  $("#comments_wrapper").html(""); //innerHTML="" 동일
+  console.log(arr);
+
+  for(var i=0;i<arr.length;i++){ //게시물 수만큼 반복문 수행
+    var msg=arr[i][2];
+    var author=arr[i][3];
+    var writeDay=arr[i][4].substring(0, 10);
+    var c = new Comments(document.getElementById("comments_wrapper"), msg, author, writeDay);
+  }
 }
 </script>
 </head>
 <body>
 
-<h3>Contact Form</h3>
+<h3>뉴스 기사 메인</h3>
 
 <div class="container">
   <form id="detail-form">
@@ -85,21 +157,30 @@ function addComment(){
   </form>
 
   <form id="comment-form">
-    <!-- 아래 히든의 용도? 어떤 뉴스기사에 대한 댓글인지를 결정지음 -->
+    <!-- 아래의 히든의 용도? 어떤 뉴스기사에 대한 댓글인지를 결정지음  -->
     <input type="hidden" name="news_id" value="<%=news[0]%>">
 
     <input type="text" name="msg" placeholder="댓글내용" style="width:70%">
     <input type="text" name="author" placeholder="작성자" style="width:15%">
     <input type="button" value="댓글등록" style="width:10%" onClick="addComment()">
   </form>
-  
-  <%for(var i=0;i<commentsList.length;i++){%>
-  <div class="comment-list">
-    <div style="width:70%">제목</div>    
-    <div style="width:15%">작성자</div>    
-    <div style="width:10%">등록일</div>    
+
+  <div id="comments_wrapper">
+    <%for(var i=0;i<commentsList.length;i++){%>
+    <%var comments=commentsList[i]; //댓글 한건 꺼내기%>    
+    <div class="comment-list">
+      <div style="width:70%"><%=comments[2]%></div>    
+      <div style="width:15%"><%=comments[3]%></div>   
+      <%
+        var d = new Date(comments[4]);      
+        var yy=d.getFullYear();
+        var mm=lib.getZeroString(d.getMonth()+1); //월
+        var dd = lib.getZeroString(d.getDate());//일
+      %>   
+      <div style="width:10%"><%=yy%>-<%=mm%>-<%=dd%></div>    
+    </div>
+    <%}%>
   </div>
-  <%}%>
 </div>
 
 </body>

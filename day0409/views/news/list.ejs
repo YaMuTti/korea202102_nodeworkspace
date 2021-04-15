@@ -69,15 +69,16 @@ a{
         <td><%=(num--)%></td>
         <td>
           <a href="/news/detail?news_id=<%=news[0]%>"><%=news[1]%></a>
+          <%if(news[5] >0){%[<%=news[5]%>]<%}%>
         </td>
         <td><%=news[2]%></td>
-        <%var d=new Date(news[4]); //날짜처리%>
+        <%var d=new Date(news[3]); //날짜처리%>
         <td>
           <%=d.getFullYear()%>-
           <%=param.lib.getZeroString(d.getMonth()+1)%>-
           <%=param.lib.getZeroString(d.getDate())%>
         </td>
-        <td><%=news[5]%></td>
+        <td><%=news[4]%></td>
     </tr>
     <%}%>
     <tr>

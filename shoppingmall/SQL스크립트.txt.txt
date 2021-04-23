@@ -1,0 +1,86 @@
+---------------------------------------------------
+관리자 정보 테이블
+---------------------------------------------------
+create database shoppingmall;
+
+use shoppingmall;
+
+create  table admin(
+   admin_id  int  primary key  auto_increment 
+ , master_id  varchar(20) 
+ , master_pass varchar(20)
+ , master_name varchar(20)
+) default  character set utf8;
+
+-------------------------------------------------------------------
+상품관련 테이블 
+-------------------------------------------------------------------
+create table  topcategory(
+  topcategory_id int primary key auto_increment
+ , top_name varchar(40)
+) default  character set utf8;
+
+create table subcategory(
+    subcategory_id int primary key auto_increment
+  , topcategory_id int
+  , sub_name varchar(40)
+  , constraint  fk_topsub  foreign key (topcategory_id) 
+    references topcategory(topcategory_id)
+) default  character set utf8;
+
+create table product(
+   product_id int primary key auto_increment
+ , subcategory_id int
+ , product_name varchar(40)
+ , price int  default  0
+ , brand varchar(30)
+ , detail text
+ , filename varchar(40)
+ , constraint fk_subproduct foreign key(subcategory_id) 
+   references subcategory(subcategory_id)
+) default  character set utf8;
+
+
+create table size_info(
+    size_info_id  int  primary key auto_increment
+  , product_id int 
+  , size varchar(5)
+  , constraint fk_productsize foreign key(product_id) 
+    references product(product_id)
+) default character set utf8;
+
+create table sub_image(
+  sub_image_id int primary key auto_increment
+  , product_id int
+  , img_name varchar(40)
+  , constraint fk_productimg foreign key(product_id) references  product(product_id)
+);
+
+--최상위 카테고리 입력
+insert into topcategory(top_name) values('Top');
+insert into topcategory(top_name) values('Down');
+insert into topcategory(top_name) values('Accessory');
+insert into topcategory(top_name) values('Shoes');
+insert into topcategory(top_name) values('Hat');
+
+--하위 카테고리 입력
+insert into subcategory(topcategory_id, sub_name) values(1, 'T-Shirts');
+insert into subcategory(topcategory_id, sub_name) values(1, 'jacket');
+insert into subcategory(topcategory_id, sub_name) values(1, 'Shirts');
+insert into subcategory(topcategory_id, sub_name) values(1, 'Sweater');
+insert into subcategory(topcategory_id, sub_name) values(2, 'Jean');
+insert into subcategory(topcategory_id, sub_name) values(2, 'Cotton Pants');
+insert into subcategory(topcategory_id, sub_name) values(2, 'Short Pants');
+insert into subcategory(topcategory_id, sub_name) values(2, 'Skirt');
+insert into subcategory(topcategory_id, sub_name) values(3, 'Ring');
+insert into subcategory(topcategory_id, sub_name) values(3, 'Bracelet');
+insert into subcategory(topcategory_id, sub_name) values(3, 'Necklace');
+insert into subcategory(topcategory_id, sub_name) values(3, 'Eearing');
+insert into subcategory(topcategory_id, sub_name) values(4, 'Sports shoes');
+insert into subcategory(topcategory_id, sub_name) values(4, 'Slipper');
+insert into subcategory(topcategory_id, sub_name) values(4, 'Loafers');
+insert into subcategory(topcategory_id, sub_name) values(4, 'Sandle');
+insert into subcategory(topcategory_id, sub_name) values(5, 'Beanie');
+insert into subcategory(topcategory_id, sub_name) values(5, 'Cap');
+insert into subcategory(topcategory_id, sub_name) values(5, 'Snapback');
+insert into subcategory(topcategory_id, sub_name) values(5, 'Ballcap');

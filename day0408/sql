@@ -1,0 +1,29 @@
+--------------------------------------------------------
+-- for mysql
+--------------------------------------------------------
+create table gallery(
+    gallery_id int primary key auto_increment
+    , title varchar(100)
+    , writer varchar(20)
+    , content text
+    , regdate timestamp default now()
+    , hit int default 0
+    , filename varchar(30)
+) default character set utf8;
+
+--------------------------------------------------------
+-- for oracle
+--------------------------------------------------------
+create table gallery(
+    gallery_id number primary key
+    , title varchar(100)
+    , writer varchar(20)
+    , content clob
+    , regdate date default sysdate
+    , hit number default 0
+    , filename varchar(50)
+);
+
+create sequence seq_gallery
+increment by 1
+start with 1;

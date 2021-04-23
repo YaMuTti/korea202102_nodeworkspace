@@ -1,0 +1,3 @@
+select product_id, s.subcategory_id, sub_name, product_name, price, brand,filename
+from subcategory s,  product p
+where s.subcategory_id = p.subcategory_id;

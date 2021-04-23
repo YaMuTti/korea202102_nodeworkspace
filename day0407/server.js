@@ -156,7 +156,6 @@ app.post("/notice/edit", function(request, response){
         }
         con.end(); //mysql 연결 종료
     });
-    
 });
 
 //삭제요청 처리
@@ -176,7 +175,6 @@ app.post("/notice/del", function(request, response){
         }
         con.end(); //mysql 접속 해제
     });
-
 });
 
 var server = http.createServer(app); //http 서버에 express모듈을 적용
